@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supporto HSE</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --muted-color: #475569;
+            --border-color: #cbd5e1;
+            --primary-color: #0284c7;
+            --primary-hover: #0369a1;
+            --danger-color: #dc2626;
+            --warning-bg: #fef3c7;
+            --warning-border: #d97706;
+            --success-color: #15803d;
+            --header-bg: #0f172a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.55;
+            padding: 20px;
+        }
+
+        .app-shell { max-width: 1400px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            background: var(--header-bg);
+            color: #ffffff;
+            padding: 18px 24px;
+            border-radius: 10px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+        }
+
+        .header-title-group h1 { font-size: 1.55rem; font-weight: 700; }
+        .header-title-group p { font-size: 0.85rem; color: #cbd5e1; margin-top: 2px; }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.04em;
+            background: var(--success-color);
+            color: #ffffff;
+        }
+
+        .status-badge.offline { background: var(--danger-color); }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        @media (max-width: 980px) { .container { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+        }
+
+        .card h2 {
+            font-size: 1.08rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+            color: var(--header-bg);
+        }
+
+        .card h3 { font-size: 0.96rem; margin: 14px 0 6px; color: var(--header-bg); }
+
+        label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            margin-top: 12px;
+            color: var(--text-color);
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: #ffffff;
+            color: var(--text-color);
+            font-family: inherit;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            font-size: 0.86rem;
+            margin-top: 4px;
+            margin-bottom: 6px;
+            color: var(--muted-color);
+        }
+
+        textarea { resize: vertical; min-height: 82px; }
+        .help-text { font-size: 0.78rem; color: var(--muted-color); margin-top: 4px; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: #ffffff;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn-danger { background-color: var(--danger-color); padding: 8px 12px; margin-top: 0; }
+        .btn-secondary { background-color: #475569; }
+        .btn-primary-full { width: 100%; padding: 13px 18px; font-size: 1.02rem; margin-top: 4px; }
+
+        .dynamic-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+        .dynamic-row input { flex: 1; }
+
+        .alert-box {
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning-border);
+            padding: 14px 16px;
+            font-size: 0.9rem;
+            margin-bottom: 18px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .alert-box.danger {
+            background: #fef2f2;
+            border-left-color: var(--danger-color);
+            color: #7f1d1d;
+        }
+
+        .alert-box ul { margin-top: 6px; margin-left: 18px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th, td { border: 1px solid var(--border-color); padding: 9px 10px; text-align: left; vertical-align: top; }
+        th { background: #f8fafc; font-weight: 700; color: var(--header-bg); }
+
+        .tag-missing {
+            color: #9a3412;
+            font-weight: 700;
+            background: #ffedd5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 0.8rem;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 0.86rem;
+        }
+
+        .photo-preview {
+            margin-top: 10px;
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.86rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="header">
+            <div class="header-title-group">
+                <h1>Supporto HSE</h1>
+                <p>Verifica coerenza documentale/operativa, analisi rischi residui, MPP e bozza integrativa</p>
+            </div>
+            <div id="netStatus" class="status-badge">ONLINE</div>
+        </header>
+
+        <main class="container">
+            <div class="col">
+                <section class="card">
+                    <h2>0. Inquadramento Operativo</h2>
+                    <label for="roleSelect">Ruolo Attivo (Obbligatorio)*</label>
+                    <select id="roleSelect">
+                        <option value="">-- Seleziona Ruolo --</option>
+                        <option value="Preposto">Preposto</option>
+                        <option value="ASPP">ASPP</option>
+                        <option value="RSPP">RSPP</option>
+                        <option value="CSE">CSE</option>
+                        <option value="CSP">CSP</option>
+                        <option value="RL">RL</option>
+                    </select>
+
+                    <label for="actionSelect">Azione Richiesta*</label>
+                    <select id="actionSelect">
+                        <option value="Verifica Coerenza PSC/Procedura">Verifica Coerenza PSC/Procedura</option>
+                        <option value="Analisi Rischi Residui sul Campo">Analisi Rischi Residui sul Campo</option>
+                        <option value="Valutazione Misure di Prevenzione">Valutazione Misure di Prevenzione</option>
+                        <option value="Generazione Bozza Integrativa">Generazione Bozza Integrativa</option>
+                    </select>
+
+                    <label for="scenarioText">Scenario Operativo di Campo</label>
+                    <textarea id="scenarioText" placeholder="Descrivere attività reale, attrezzature, interferenze, condizioni ambientali o fasi in corso..."></textarea>
+                </section>
+
+                <section class="card">
+                    <h2>1. Procedura Operativa</h2>
+                    <input type="file" id="procFile" accept=".txt,.md,.json,.csv,.log,.html,.xml,.doc,.docx,.pdf">
+                    <div class="help-text">Supporta lettura diretta di file di testo ed estrazione di testo stampabile da file caricati.</div>
+                    <textarea id="procText" placeholder="Testo estratto o incollato della procedura..."></textarea>
+                </section>
+
+                <section class="card">
+                    <h2>2. PSC (Piano di Sicurezza e Coordinamento)</h2>
+                    <input type="file" id="pscFile" accept=".txt,.md,.json,.csv,.log,.html,.xml,.doc,.docx,.pdf">
+                    <div class="help-text">Inserire o caricare le prescrizioni, fasi, interferenze e misure previste dal PSC.</div>
+                    <textarea id="pscText" placeholder="Testo estratto o incollato del PSC..."></textarea>
+                </section>
+
+                <section class="card">
+                    <h2>3. Luogo e Foto (Dati Confutabili)</h2>
+                    <label for="locationText">Descrizione del Luogo / Cantiere</label>
+                    <textarea id="locationText" placeholder="Es. Area impianto, reparto, quota, perimetro, condizioni di accesso..."></textarea>
+
+                    <label for="photoFile">Foto Reale Operativa</label>
+                    <input type="file" id="photoFile" accept="image/*">
+                    <img id="photoPreview" class="photo-preview" alt="Anteprima foto caricata">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-secondary" onclick="runOCR()">Estrai testo da foto (OCR)</button>
+                    </div>
+                    <textarea id="ocrText" placeholder="Esito estrazione OCR dalla foto..." style="margin-top:8px;" readonly></textarea>
+
+                    <label>Campi Personalizzati di Rilievo</label>
+                    <div id="customFields"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addCustomField()">+ Aggiungi Campo</button>
+
+                    <label for="sourceText">Fonte Dati Luogo (Opzionale)</label>
+                    <input type="text" id="sourceText" placeholder="Es. Sopralluogo diretto, verbale, rilievo fotografico...">
+                </section>
+
+                <button type="button" class="btn btn-primary-full" onclick="processAnalysis()">ESEGUI ANALISI E COERENZA</button>
+            </div>
+
+            <div class="col">
+                <div id="outputAlert" class="alert-box" style="display:none;"></div>
+
+                <section class="card">
+                    <h2>Esito Analisi, Ruolo e Incongruenze</h2>
+                    <div id="analysisResult">
+                        <p class="help-text">Selezionare il ruolo attivo e compilare i dati minimi per avviare la verifica.</p>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>Rischi Residui, MPP e Fonti Ufficiali</h2>
+                    <div id="mppResult">
+                        <p class="help-text">Nessun rischio elaborato.</p>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>Bozza di Integrazione Operativa</h2>
+                    <textarea id="draftText" style="min-height:190px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;"></textarea>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                        <button type="button" class="btn" onclick="copyDraft()">Copia Bozza</button>
+                        <button type="button" class="btn btn-secondary" onclick="downloadDraft()">Scarica (.txt)</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const MISSING_TAG = '[DATO MANCANTE DA CONFERMARE]';
+
+        const ROLE_PROFILES = {
+            Preposto: {
+                focus: 'Sovrintendenza diretta sull\'esecuzione delle attività, osservanza delle istruzioni, segnalazione tempestiva di criticità e sospensione/blocco in caso di pericolo grave e immediato.',
+                mppPriority: 'Verifica pre-avvio sul campo, perimetrazione immediata, controllo DPI/attrezzature in uso e blocco operativo in caso di difformità.'
+            },
+            ASPP: {
+                focus: 'Supporto tecnico-istruttorio al RSPP nell\'individuazione dei pericoli, mappatura delle incongruenze tra procedura/PSC e rilievo, predisposizione di schede MPP.',
+                mppPriority: 'Rilevazione sistematica delle difformità testuali/operative e classificazione dei rischi residui per priorità tecnica.'
+            },
+            RSPP: {
+                focus: 'Coordinamento del sistema di prevenzione e protezione aziendale, valutazione della coerenza tra procedure operative, DVR/rischi e misure preventive.',
+                mppPriority: 'Gerarchia delle misure (eliminazione, sostituzione, controlli tecnici, misure organizzative, DPI) e allineamento procedurale.'
+            },
+            CSE: {
+                focus: 'Verifica dell\'applicazione delle disposizioni del PSC da parte delle imprese esecutrici e dei lavoratori autonomi, adeguamento del PSC a evoluzioni/rischi in corso d\'opera e sospensione in caso di pericolo grave e imminente.',
+                mppPriority: 'Controllo interferenze di cantiere, coerenza con il PSC, gestione varianti/rischi residui e formalizzazione di integrazioni o sospensioni.'
+            },
+            CSP: {
+                focus: 'Progettazione delle misure di sicurezza e coordinamento in fase progettuale, previsione delle interferenze e definizione preventiva delle prescrizioni nel PSC.',
+                mppPriority: 'Prevenzione alla fonte nelle fasi progettuali, pianificazione delle misure di coordinamento e riduzione dei rischi residui a monte.'
+            },
+            RL: {
+                focus: 'Controllo e verifica della conformità e idoneità tecnico-professionale/organizzativa del soggetto affidatario o esecutore rispetto alle condizioni operative e ai requisiti normativi.',
+                mppPriority: 'Verifica coerenza contrattuale/organizzativa, idoneità delle misure dichiarate e formalizzazione delle conferme mancanti.'
+            }
+        };
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatOrMissing(value) {
+            const trimmed = (value || '').trim();
+            if (!trimmed) return `<span class="tag-missing">${MISSING_TAG}</span>`;
+            return escapeHtml(trimmed);
+        }
+
+        function plainOrMissing(value) {
+            const trimmed = (value || '').trim();
+            return trimmed ? trimmed : MISSING_TAG;
+        }
+
+        function updateNetStatus() {
+            const badge = document.getElementById('netStatus');
+            if (navigator.onLine) {
+                badge.textContent = 'ONLINE';
+                badge.classList.remove('offline');
+            } else {
+                badge.textContent = 'OFFLINE';
+                badge.classList.add('offline');
+            }
+        }
+        window.addEventListener('online', updateNetStatus);
+        window.addEventListener('offline', updateNetStatus);
+        updateNetStatus();
+
+        function extractPrintableFromBinary(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let chunks = [];
+            let current = '';
+            for (let i = 0; i < bytes.length; i++) {
+                const b = bytes[i];
+                if ((b >= 32 && b <= 126) || b === 10 || b === 13 || b === 9) {
+                    current += String.fromCharCode(b);
+                } else {
+                    if (current.trim().length >= 4) chunks.push(current.trim());
+                    current = '';
+                }
+            }
+            if (current.trim().length >= 4) chunks.push(current.trim());
+            return chunks.join('\n');
+        }
+
+        function setupFileHandler(inputId, targetId) {
+            document.getElementById(inputId).addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const ext = file.name.split('.').pop().toLowerCase();
+                const textExts = ['txt', 'md', 'json', 'csv', 'log', 'html', 'xml'];
+                if (textExts.includes(ext)) {
+                    const reader = new FileReader();
+                    reader.onload = function (evt) {
+                        document.getElementById(targetId).value = evt.target.result || '';
+                        showToast(`Testo caricato da ${file.name}`);
+                    };
+                    reader.readAsText(file, 'utf-8');
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = function (evt) {
+                        const extracted = extractPrintableFromBinary(evt.target.result);
+                        document.getElementById(targetId).value = extracted || `${MISSING_TAG} — Nessun testo leggibile estratto da ${file.name}`;
+                        showToast(`Elaborato ${file.name}`);
+                    };
+                    reader.readAsArrayBuffer(file);
+                }
+            });
+        }
+        setupFileHandler('procFile', 'procText');
+        setupFileHandler('pscFile', 'pscText');
+
+        document.getElementById('photoFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('photoPreview');
+            document.getElementById('ocrText').value = '';
+            if (!file) {
+                preview.style.display = 'none';
+                preview.removeAttribute('src');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                preview.src = evt.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function addCustomField(key = '', val = '') {
+            const container = document.getElementById('customFields');
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Nome campo (es. Quota / Interferenza)" class="custom-key" value="${escapeHtml(key)}">
+                <input type="text" placeholder="Valore rilevato" class="custom-val" value="${escapeHtml(val)}">
+                <button type="button" class="btn btn-danger" aria-label="Rimuovi campo" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function getCustomFields() {
+            const rows = document.querySelectorAll('#customFields .dynamic-row');
+            const list = [];
+            rows.forEach((row) => {
+                const k = row.querySelector('.custom-key').value.trim();
+                const v = row.querySelector('.custom-val').value.trim();
+                if (k || v) list.push({ key: k || MISSING_TAG, val: v || MISSING_TAG });
+            });
+            return list;
+        }
+
+        function runOCR() {
+            const file = document.getElementById('photoFile').files[0];
+            if (!file) {
+                showToast('Caricare prima una foto nella sezione Luogo e Foto.');
+                return;
+            }
+            document.getElementById('ocrText').value =
+                `${MISSING_TAG} — Lettura ottica automatica non disponibile in locale senza motore OCR dedicato; verificare visivamente i cartelli, le targhe e le condizioni presenti nella foto "${file.name}".`;
+            showToast('Stato OCR aggiornato secondo logica Zero-Assunzione');
+        }
+
+        function detectResidualRisks(combinedText) {
+            const lower = combinedText.toLowerCase();
+            const risks = [];
+
+            if (lower.includes('quota') || lower.includes('ponteggio') || lower.includes('caduta') || lower.includes('trabattello') || lower.includes('copertura')) {
+                risks.push({
+                    risk: 'Caduta dall\'alto / lavori in quota',
+                    mpp: 'Verifica parapetti/ancoraggi, utilizzo DPI anticaduta idonei, delimitazione area sottostante e controllo piano di montaggio/uso.',
+                    sourceRef: 'Normattiva (D.Lgs. 81/2008, Capo II Titolo IV / Allegato XVIII) — Cassazione / Italgiure'
+                });
+            }
+
+            if (lower.includes('interferen') || lower.includes('compresenza') || lower.includes('gru') || lower.includes('mezzi') || lower.includes('moviment')) {
+                risks.push({
+                    risk: 'Interferenze operative e movimentazione mezzi/carichi',
+                    mpp: 'Sfasamento temporale o spaziale delle lavorazioni, segregazione percorsi pedonali/mezzi, segnaletica dedicata e coordinamento preventivo.',
+                    sourceRef: 'Normattiva (D.Lgs. 81/2008, Artt. 26, 95, 100 / Allegato XV) — Cassazione / Italgiure'
+                });
+            }
+
+            if (lower.includes('scavo') || lower.includes('trincea') || lower.includes('sottoserviz') || lower.includes('cedimento')) {
+                risks.push({
+                    risk: 'Cedimento pareti di scavo o intercettazione sottoservizi',
+                    mpp: 'Bonifica/individuazione sottoservizi, armature o inclinazione di sicurezza, vie di esodo e verifica condizioni idrogeologiche.',
+                    sourceRef: 'Normattiva (D.Lgs. 81/2008, Capo III Titolo IV) — Cassazione / Italgiure'
+                });
+            }
+
+            if (lower.includes('spazio confinato') || lower.includes('serbatoio') || lower.includes('cisterna') || lower.includes('gas') || lower.includes('atmosfera')) {
+                risks.push({
+                    risk: 'Atmosfera pericolosa / spazi confinati o sospetti di inquinamento',
+                    mpp: 'Verifica preliminare gas/ossigeno, procedura di ingresso con presidio esterno, aerazione e piano di emergenza/recupero.',
+                    sourceRef: 'Normattiva (D.Lgs. 81/2008, Art. 66, Allegato IV; DPR 177/2011) — Cassazione / Italgiure'
+                });
+            }
+
+            if (lower.includes('elettr') || lower.includes('tensione') || lower.includes('quadro') || lower.includes('cavo')) {
+                risks.push({
+                    risk: 'Contatto elettrico diretto o indiretto / lavori elettrici',
+                    mpp: 'Verifica assenza tensione o distanze di sicurezza, messa a terra, componenti conformi e abilitazione/idoneità degli operatori.',
+                    sourceRef: 'Normattiva (D.Lgs. 81/2008, Titolo III Capo III) — Cassazione / Italgiure'
+                });
+            }
+
+            if (risks.length === 0) {
+                risks.push({
+                    risk: `Rischio residuo da verificare sullo scenario (${MISSING_TAG} per dettaglio specifico)`,
+                    mpp: 'Confermare condizioni operative reali, attrezzature, DPI e misure di coordinamento prima dell\'avvio o prosecuzione.',
+                    sourceRef: 'Normattiva (D.Lgs. 81/2008, Titolo I e Titolo IV) — Cassazione / Italgiure'
+                });
+            }
+
+            return risks;
+        }
+
+        function processAnalysis() {
+            const role = document.getElementById('roleSelect').value;
+            const action = document.getElementById('actionSelect').value;
+            const scenario = document.getElementById('scenarioText').value.trim();
+            const proc = document.getElementById('procText').value.trim();
+            const psc = document.getElementById('pscText').value.trim();
+            const location = document.getElementById('locationText').value.trim();
+            const ocr = document.getElementById('ocrText').value.trim();
+            const source = document.getElementById('sourceText').value.trim();
+            const customFields = getCustomFields();
+
+            const alertBox = document.getElementById('outputAlert');
+
+            if (!role) {
+                alertBox.className = 'alert-box danger';
+                alertBox.style.display = 'block';
+                alertBox.innerHTML = `
+                    <strong>DATI INSUFFICIENTI — NESSUN RISULTATO GENERATO</strong>
+                    <ul>
+                        <li>Selezionare il <strong>Ruolo Attivo</strong> obbligatorio (Preposto, ASPP, RSPP, CSE, CSP o RL).</li>
+                    </ul>
+                `;
+                return;
+            }
+
+            const missingItems = [];
+            if (!scenario) missingItems.push('Scenario Operativo di Campo');
+            if (!proc) missingItems.push('Procedura Operativa');
+            if (!psc) missingItems.push('PSC (Piano di Sicurezza e Coordinamento)');
+            if (!location) missingItems.push('Descrizione del Luogo / Cantiere');
+
+            if (missingItems.length > 0) {
+                alertBox.className = 'alert-box';
+                alertBox.style.display = 'block';
+                alertBox.innerHTML = `
+                    <strong>DATI INSUFFICIENTI — ANALISI AVVIATA CON SEGNAPOSTI ${MISSING_TAG}</strong>
+                    <p style="margin-top:4px;">I seguenti elementi non sono stati forniti e vengono marcati come non assunti:</p>
+                    <ul>${missingItems.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+                `;
+            } else {
+                alertBox.style.display = 'none';
+            }
+
+            const profile = ROLE_PROFILES[role];
+            const customHtml = customFields.length > 0
+                ? `<ul>${customFields.map((f) => `<li><strong>${escapeHtml(f.key)}:</strong> ${escapeHtml(f.val)}</li>`).join('')}</ul>`
+                : `<p class="help-text">Nessun campo aggiuntivo inserito (${MISSING_TAG}).</p>`;
+
+            document.getElementById('analysisResult').innerHTML = `
+                <div class="meta-grid">
+                    <div><strong>Ruolo Attivo:</strong><br>${escapeHtml(role)}</div>
+                    <div><strong>Azione Richiesta:</strong><br>${escapeHtml(action)}</div>
+                    <div><strong>Fonte Dati Luogo:</strong><br>${formatOrMissing(source)}</div>
+                </div>
+                <p><strong>Perimetro di ruolo:</strong> ${escapeHtml(profile.focus)}</p>
+                <h3>1. Verifica Scenario, Procedura e PSC</h3>
+                <p><strong>Scenario:</strong> ${formatOrMissing(scenario)}</p>
+                <p><strong>Procedura:</strong> ${formatOrMissing(proc)}</p>
+                <p><strong>PSC:</strong> ${formatOrMissing(psc)}</p>
+                <p><strong>Luogo:</strong> ${formatOrMissing(location)}</p>
+                <p><strong>Esito OCR Foto:</strong> ${formatOrMissing(ocr)}</p>
+                <h3>2. Campi Personalizzati</h3>
+                ${customHtml}
+            `;
+
+            const combinedContext = [scenario, proc, psc, location, ocr, ...customFields.map((x) => `${x.key} ${x.val}`)].join(' ');
+            const risks = detectResidualRisks(combinedContext);
+            const pscStatusLabel = psc ? 'Presente (verificare coerenza puntuale col testo caricato)' : `<span class="tag-missing">${MISSING_TAG} (PSC assente)</span>`;
+
+            document.getElementById('mppResult').innerHTML = `
+                <p><strong>Priorità per ${escapeHtml(role)}:</strong> ${escapeHtml(profile.mppPriority)}</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rischio Residuo</th>
+                            <th>Misure di Prevenzione e Protezione (MPP)</th>
+                            <th>Confronto PSC</th>
+                            <th>Fonti Ufficiali (Normattiva / Cassazione)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${risks.map((r) => `
+                            <tr>
+                                <td>${escapeHtml(r.risk)}</td>
+                                <td>${escapeHtml(r.mpp)}</td>
+                                <td>${pscStatusLabel}</td>
+                                <td>${escapeHtml(r.sourceRef)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            const customPlain = customFields.length > 0
+                ? customFields.map((f) => `  - ${f.key}: ${f.val}`).join('\n')
+                : `  - Campi aggiuntivi: ${MISSING_TAG}`;
+
+            const risksPlain = risks.map((r, idx) =>
+                `  ${idx + 1}. Rischio: ${r.risk}\n     MPP: ${r.mpp}\n     PSC: ${psc ? 'Presente (verificare coerenza)' : MISSING_TAG}\n     Fonti: ${r.sourceRef}`
+            ).join('\n');
+
+            document.getElementById('draftText').value = [
+                'BOZZA DI INTEGRAZIONE OPERATIVA — SUPPORTO HSE',
+                '==============================================',
+                `Ruolo Attivo: ${role}`,
+                `Azione Richiesta: ${action}`,
+                `Fonte Dati Luogo: ${plainOrMissing(source)}`,
+                '',
+                'DATI DI CONTESTO (LOGICA ZERO-ASSUNZIONE)',
+                `- Luogo: ${plainOrMissing(location)}`,
+                `- Scenario Operativo: ${plainOrMissing(scenario)}`,
+                `- Procedura: ${plainOrMissing(proc)}`,
+                `- PSC: ${plainOrMissing(psc)}`,
+                `- Esito OCR Foto: ${plainOrMissing(ocr)}`,
+                '- Campi Personalizzati:',
+                customPlain,
+                '',
+                'RISCHI RESIDUI E MPP',
+                risksPlain,
+                '',
+                'NOTE DI VERIFICA E CONFERMA',
+                `Tutti gli elementi contrassegnati con ${MISSING_TAG} devono essere verificati e confermati in sede operativa prima dell'adozione definitiva della presente bozza.`
+            ].join('\n');
+
+            showToast('Analisi completata');
+        }
+
+        function copyDraft() {
+            const draftEl = document.getElementById('draftText');
+            if (!draftEl.value.trim()) {
+                showToast('Nessuna bozza da copiare.');
+                return;
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(draftEl.value).then(() => showToast('Bozza copiata negli appunti.'));
+            } else {
+                draftEl.select();
+                document.execCommand('copy');
+                showToast('Bozza copiata negli appunti.');
+            }
+        }
+
+        function downloadDraft() {
+            const text = document.getElementById('draftText').value;
+            if (!text.trim()) {
+                showToast('Esegui prima l\'analisi per generare la bozza.');
+                return;
+            }
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Bozza_Integrazione_HSE.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast('File Bozza_Integrazione_HSE.txt scaricato.');
+        }
+    </script>
+</body>
+</html>
